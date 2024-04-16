@@ -11,8 +11,9 @@ offsets = Offsets(
 
 positions = Positions(
     LabelsPositions(
-        targets_amount_label=Position(20, 100),
-        attacks_amount_label=Position(20, 150),
+        targets_amount_label=Position(340, 50),
+        attacks_rand_label=Position(170, 50),
+        attacks_amount_label=Position(20, 50),
         can_reroll_hits_label=Position(20, 200),
         can_reroll_wounds_label=Position(20, 280),
         will_reroll_hits_label=Position(230, 200),
@@ -24,17 +25,25 @@ positions = Positions(
         target_SvInv_label=Position(520, 250),
         target_FNP_label=Position(520, 300),
 
-        attack_S_label=Position(280-50, 150),
-        attack_WS_label=Position(270-50, 100),
-        attack_D_label=Position(360, 100),
+        attack_S_label=Position(120, 100),
+        attack_WS_label=Position(20, 100),
+        attack_D_label=Position(320, 100),
+        attack_AP_label=Position(215, 100),
+        attack_crit_hit_on_label=Position(20, 150),
+        attack_crit_wound_on_label=Position(195, 150),
 
-        plus_to_wound_label=Position(20, 370),
+        sustained_hits_label=Position(20, 420),
+        lethal_hits_label=Position(20, 450),
+
+        plus_to_hit_label=Position(20, 370),
+        plus_to_wound_label=Position(170, 370),
 
         tries_label=Position(650, 70)
     ),
     EditorsPositions(
-        targets_amount_editor=Position(110, 100),
-        attacks_amount_editor=Position(110, 150),
+        targets_amount_editor=Position(440, 50),
+        attacks_amount_editor=Position(110, 50),
+        attacks_rand_editor=Position(260, 50),
 
         target_T_editor=Position(540, 100),
         target_W_editor=Position(540, 150),
@@ -42,11 +51,17 @@ positions = Positions(
         target_SvInv_editor=Position(560, 250),
         target_FNP_editor=Position(560, 300),
 
-        attack_S_editor=Position(250, 150),
-        attack_WS_editor=Position(250, 100),
-        attack_D_editor=Position(380, 100),
+        attack_S_editor=Position(140, 100),
+        attack_WS_editor=Position(50, 100),
+        attack_D_editor=Position(340, 100),
+        attack_AP_editor=Position(240, 100),
+        attack_crit_hit_on_editor=Position(120, 150),
+        attack_crit_wound_on_editor=Position(320, 150),
 
-        plus_to_wound_editor=Position(90, 370),
+        sustained_hits_editor=Position(150, 420),
+
+        plus_to_hit_editor=Position(90, 370),
+        plus_to_wound_editor=Position(240, 370),
 
         tries_editor=Position(740, 70)
     ),
@@ -69,7 +84,10 @@ positions = Positions(
             except_success=Position(320, 280),
             except_crits=Position(320, 300),
         ),
-        info=Position(20, 20),
+
+        sustained_hits_button=Position(120, 420),
+        lethal_hits_button=Position(120, 450),
+        info=Position(20, 490),
         calculate=Position(800, 70)
     ),
 )

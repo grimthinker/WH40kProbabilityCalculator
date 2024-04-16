@@ -1,8 +1,9 @@
 from dataclasses import asdict
-from tkinter import ttk, StringVar, Tk
+from tkinter import ttk, StringVar, Tk, IntVar
 
-from app.classes import CRO, WRO, Data
-from app.service import Calculator, info, is_int
+from app.classes import DataAccessor
+from app.service import Calculator, info
+from app.utils import is_int, WRO, CRO
 from config import positions, WINDOW_SIZE, WINDOW_NAME
 
 
@@ -72,6 +73,10 @@ def setup_app():
     attacks_amount_label.place(**asdict(positions.labels.attacks_amount_label))
     attacks_amount_editor = make_int_entry()
     attacks_amount_editor.place(**asdict(positions.editors.attacks_amount_editor))
+    attacks_rand_label = ttk.Label(text="Attacks random")
+    attacks_rand_label.place(**asdict(positions.labels.attacks_rand_label))
+    attacks_rand_editor = make_int_entry()
+    attacks_rand_editor.place(**asdict(positions.editors.attacks_rand_editor))
 
     target_W_label = ttk.Label(text="W")
     target_W_label.place(**asdict(positions.labels.target_W_label))
@@ -94,19 +99,48 @@ def setup_app():
     target_FNP_editor = make_int_entry()
     target_FNP_editor.place(**asdict(positions.editors.target_FNP_editor))
 
-    attacks_WS_label = ttk.Label(text="WS")
-    attacks_WS_label.place(**asdict(positions.labels.attack_WS_label))
-    attacks_WS_editor = make_int_entry()
-    attacks_WS_editor.place(**asdict(positions.editors.attack_WS_editor))
-    attacks_S_label = ttk.Label(text="S")
-    attacks_S_label.place(**asdict(positions.labels.attack_S_label))
-    attacks_S_editor = make_int_entry()
-    attacks_S_editor.place(**asdict(positions.editors.attack_S_editor))
-    attacks_D_label = ttk.Label(text="D")
-    attacks_D_label.place(**asdict(positions.labels.attack_D_label))
-    attacks_D_editor = make_int_entry()
-    attacks_D_editor.place(**asdict(positions.editors.attack_D_editor))
+    attack_WS_label = ttk.Label(text="WS")
+    attack_WS_label.place(**asdict(positions.labels.attack_WS_label))
+    attack_WS_editor = make_int_entry()
+    attack_WS_editor.place(**asdict(positions.editors.attack_WS_editor))
+    attack_S_label = ttk.Label(text="S")
+    attack_S_label.place(**asdict(positions.labels.attack_S_label))
+    attack_S_editor = make_int_entry()
+    attack_S_editor.place(**asdict(positions.editors.attack_S_editor))
+    attack_D_label = ttk.Label(text="D")
+    attack_D_label.place(**asdict(positions.labels.attack_D_label))
+    attack_D_editor = make_int_entry()
+    attack_D_editor.place(**asdict(positions.editors.attack_D_editor))
+    attack_AP_label = ttk.Label(text="AP")
+    attack_AP_label.place(**asdict(positions.labels.attack_AP_label))
+    attack_AP_editor = make_int_entry()
+    attack_AP_editor.place(**asdict(positions.editors.attack_AP_editor))
+    attack_crit_hit_on_label = ttk.Label(text="CRITICAL HIT on")
+    attack_crit_hit_on_label.place(**asdict(positions.labels.attack_crit_hit_on_label))
+    attack_crit_hit_on_editor = make_int_entry()
+    attack_crit_hit_on_editor.place(**asdict(positions.editors.attack_crit_hit_on_editor))
+    attack_crit_wound_on_label = ttk.Label(text="CRITICAL WOUND on")
+    attack_crit_wound_on_label.place(**asdict(positions.labels.attack_crit_wound_on_label))
+    attack_crit_wound_on_editor = make_int_entry()
+    attack_crit_wound_on_editor.place(**asdict(positions.editors.attack_crit_wound_on_editor))
 
+    lethal_hits_label = ttk.Label(text="LETHAL HITS")
+    lethal_hits_label.place(**asdict(positions.labels.lethal_hits_label))
+    lethal_hits_enabled = IntVar()
+    lethal_hits_button = ttk.Checkbutton(text="", variable=lethal_hits_enabled)
+    lethal_hits_button.place(**asdict(positions.buttons.lethal_hits_button))
+    sustained_hits_label = ttk.Label(text="SUSTAINED HITS")
+    sustained_hits_label.place(**asdict(positions.labels.sustained_hits_label))
+    sustained_hits_editor = make_int_entry()
+    sustained_hits_editor.place(**asdict(positions.editors.sustained_hits_editor))
+    sustained_hits_enabled = IntVar()
+    sustained_hits_button = ttk.Checkbutton(text="", variable=sustained_hits_enabled)
+    sustained_hits_button.place(**asdict(positions.buttons.sustained_hits_button))
+
+    plus_to_hit_label = ttk.Label(text="Plus to HR")
+    plus_to_hit_label.place(**asdict(positions.labels.plus_to_hit_label))
+    plus_to_hit_editor = make_int_entry()
+    plus_to_hit_editor.place(**asdict(positions.editors.plus_to_hit_editor))
     plus_to_wound_label = ttk.Label(text="Plus to WR")
     plus_to_wound_label.place(**asdict(positions.labels.plus_to_wound_label))
     plus_to_wound_editor = make_int_entry()
@@ -129,15 +163,23 @@ def setup_app():
     place_will_reroll_wounds_rbtn(will_reroll_wounds_var)
     calculator = Calculator(
         attacks_amount_editor=attacks_amount_editor,
+        attacks_rand_editor=attacks_rand_editor,
         targets_amount_editor=targets_amount_editor,
-        attacks_D_editor=attacks_D_editor,
-        attacks_S_editor=attacks_S_editor,
-        attacks_WS_editor=attacks_WS_editor,
+        attacks_D_editor=attack_D_editor,
+        attacks_S_editor=attack_S_editor,
+        attacks_WS_editor=attack_WS_editor,
+        crit_hit_on_editor=attack_crit_hit_on_editor,
+        crit_wound_on_editor=attack_crit_wound_on_editor,
+        attacks_AP_editor=attack_AP_editor,
         target_Sv_editor=target_Sv_editor,
         target_SvInv_editor=target_SvInv_editor,
         target_T_editor=target_T_editor,
         target_W_editor=target_W_editor,
         target_FNP_editor=target_FNP_editor,
+        sustained_hits_enabled=sustained_hits_enabled,
+        sustained_hits_editor=sustained_hits_editor,
+        lethal_hits_enabled=lethal_hits_enabled,
+        plus_to_hit_editor=plus_to_hit_editor,
         plus_to_wound_editor=plus_to_wound_editor,
         can_reroll_hits_var=can_reroll_hits_var,
         can_reroll_wounds_var=can_reroll_wounds_var,
@@ -146,12 +188,18 @@ def setup_app():
         tries_editor=tries_editor
     )
 
-    info_button = ttk.Button(text="Информация", command=info)
+    info_button = ttk.Button(text="Info (not working)", command=info)
     info_button.place(**asdict(positions.buttons.info))
     info_button = ttk.Button(text="Calculate", command=calculator.calculate)
     info_button.place(**asdict(positions.buttons.calculate))
 
     # fill entries
+    attacks_rand_editor.insert(0, '1')
+    attack_crit_hit_on_editor.insert(0, '6')
+    attack_crit_wound_on_editor.insert(0, '6')
+    plus_to_hit_editor.insert(0, '0')
+    plus_to_wound_editor.insert(0, '0')
+    target_FNP_editor.insert(0, '7')
     tries_editor.insert(0, '10000')
 
     return root

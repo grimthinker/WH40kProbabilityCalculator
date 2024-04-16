@@ -1,115 +1,105 @@
 import random
 from typing import Any
 
-from app.classes import Data, ResultData
-
-DICE = [1, 2, 3, 4, 5, 6]
+from app.classes import DataAccessor, ResultData, OneTryData, BaseData
+from app.utils import D6, CRO, get_damage
 
 
 def info():
     pass
 
 
-class Calculator(Data, ResultData):
+class Calculator(DataAccessor):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._targets: list[int] = [1]
-        self._wounds_on: int = 6
-        self._attacks: int = 1
-        self.failed_fnp: int = 0
-        self.targets_killed: int = 0
-        self.wounds_lost: int = 0
-        self.targets_killed: int = 0
+        self.data: BaseData | None = None
+        self._try: OneTryData | None = None
+        self.result: ResultData = ResultData()
 
-    @property
-    def attacks(self):
-        return self._attacks
 
-    @attacks.setter
-    def attacks(self, val):
-        self._attacks = val
 
     def calculate(self):
-        self.wound_on = def_wound_on(self.S, self.T, plus_to_wound=self.PTW)
+        self.data = self.get_data()
         for _ in range(self.tries):
-            self.targets = [self.W for x in range(self.targets_amount)]
-            self.attacks = self.attacks_amount
-            success_hits = 0
-            success_wounds = 0
-            failed_saves = 0
-            failed_fnp = 0
-            wounds_lost = 0
-            targets_killed = 0
+            self._try = self.data.prepare_try()
 
-            self.success_wounds_on_list.append(self.wound_on)
-            while self.targets and self.attacks:
-                self.attacks -= 1
-
+            while self._try.targets and self._try.attacks:
+                self._try.attacks -= 1
                 self.make_hit_roll()
 
-            self.success_hits_list.append(success_hits)
-            self.success_wounds_list.append(success_wounds)
-            self.failed_saves_list.append(failed_saves)
-            self.failed_fnp_list.append(failed_fnp)
-            self.wounds_lost_list.append(wounds_lost)
-            self.targets_killed_list.append(targets_killed)
+            self.result.success_hits_list.append(self._try.success_hits)
+            self.result.success_wounds_list.append(self._try.success_wounds)
+            self.result.failed_saves_list.append(self._try.failed_saves)
+            self.result.failed_fnp_list.append(self._try.failed_fnp)
+            self.result.wounds_lost_list.append(self._try.wounds_lost)
+            self.result.targets_killed_list.append(self._try.targets_killed)
 
+    def check_hit_roll(self, hit_roll):
+        return hit_roll >= min(self.data.WS - self.data.PTH, self.data.CH)
+
+    def check_wound_roll(self, wound_roll):
+        return wound_roll >= min(self.data.wound_on, self.data.CW)
+
+    def check_can_reroll_hit(self, hit_roll):
+        return self.data.CRH == CRO.ALL or (self.data.CRH == CRO.ONES_ONLY and hit_roll == 1)
+
+    def check_can_reroll_wound(self, wound_roll):
+        return self.data.CRW == CRO.ALL or (self.data.CRW == CRO.ONES_ONLY and wound_roll == 1)
 
     def make_hit_roll(self):
-        Hit_roll = random.choice(DICE)  # Roll a dice
-        if Hit_roll >= min(self.WS - self.PTH, self.Crit_hit) or (
-                Hit_reroll == '1' or (Hit_reroll == '2' and Hit_roll == 1) and random.choice(DICE) >= WS):
-            Hit = True
-        else:
-            Hit = False
+        hit_roll = random.choice(D6)  # Roll a dice
+        Hit = self.check_hit_roll(hit_roll)
+        CRR = self.check_can_reroll_hit(hit_roll)  # can_reroll_the_roll
+        if not Hit and CRR:
+            hit_roll = random.choice(D6)
+            Hit = self.check_hit_roll(hit_roll)
         if not Hit:
             return
-        global success_hits
-        global success_wounds
-        success_hits += 1
+        self._try.success_hits += 1
         hits_total = 1
-        if Hit_roll >= Crit_hit:
-            if Sust_hits:
-                success_hits += Sust_hits
-                hits_total += Sust_hits
-            if Leth_hits:
-                success_wounds += 1
+        if hit_roll >= self.crit_hit_on:
+            if self.data.sustained_hits:
+                self._try.success_hits += self.data.sustained_hits_val
+                hits_total += self.data.sustained_hits_val
+            if self.data.lethal_hits:
+                self._try.success_wounds += 1
                 hits_total -= 1
-                make_save_roll()
+                self.make_save_roll()
         for hit in range(hits_total):
             self.make_wound_roll()
+        return
 
 
     def make_wound_roll(self):
-        Wound_roll = random.choice(DICE)
-        if Wound_roll >= min(Wound_on, Crit_wound) or (
-                Wound_reroll == '1' or (Wound_reroll == '2' and Wound_roll == 1) and random.choice(DICE) >= Wound_on):
-            Wound = True
-        else:
-            Wound = False
+        wound_roll = random.choice(D6)  # Roll a dice
+        Wound = self.check_wound_roll(wound_roll)
+        CRR = self.check_can_reroll_hit(wound_roll)  # can_reroll_the_roll
+        if not Wound and CRR:
+            wound_roll = random.choice(D6)
+            Wound = self.check_wound_roll(wound_roll)
         if not Wound:
             return
-        global success_wounds
-        success_wounds += 1
-        if Wound_roll >= Crit_wound and Dev_wounds:
-            if self.FNP:
+        self._try.success_wounds += 1
+        if wound_roll >= self.data.CW and self.data.devastating_wounds:
+            if self.data.FNP:
                 self.make_fnp_rolls()
             else:
-                if not self.targets:
+                if not self._try.targets:
                     return
-                damage = self.D if self.D <= self.targets[0] else self.targets[0]
-                self.targets[0] -= damage
-                self.wounds_lost += damage
-                if self.targets[0] <= 0:
-                    self.targets.pop(0)
-                    self.targets_killed += 1
+                damage = get_damage(self.data.D)
+                damage = damage if damage <= self._try.targets[0] else self._try.targets[0]
+                self._try.targets[0] -= damage
+                self._try.wounds_lost += damage
+                if self._try.targets[0] <= 0:
+                    self._try.targets.pop(0)
+                    self._try.targets_killed += 1
         else:
             self.make_save_roll()
 
 
     def make_save_roll(self):
         use_Sv = self.Sv if self.Sv + self.AP <= self.SvInv else self.SvInv
-        Save_roll = random.choice(DICE)
+        Save_roll = random.choice(D6)
         if Save_roll >= use_Sv:
             return
         global failed_saves
@@ -117,53 +107,32 @@ class Calculator(Data, ResultData):
         if self.FNP:
             self.make_fnp_rolls()
         else:
-            if not self.targets:
+            if not self._try.targets:
                 return
-            damage = self.D if self.D <= self.targets[0] else self.targets[0]
-            self.targets[0] -= damage
-            self.wounds_lost += damage
-            if self.targets[0] <= 0:
-                self.targets.pop(0)
-                self.targets_killed += 1
+            damage = get_damage(self.data.D)
+            damage = damage if damage <= self._try.targets[0] else self._try.targets[0]
+            self._try.targets[0] -= damage
+            self._try.wounds_lost += damage
+            if self._try.targets[0] <= 0:
+                self._try.targets.pop(0)
+                self._try.targets_killed += 1
 
 
     def make_fnp_rolls(self):
-        if not self.targets:
+        if not self._try.targets:
             return
-        for wound_ in range(self.D):
-            FNP_roll = random.choice(DICE)
+        damage = get_damage(self.data.D)
+        damage = damage if damage <= self._try.targets[0] else self._try.targets[0]
+        for wound_ in range(damage):
+            FNP_roll = random.choice(D6)
             if FNP_roll >= self.FNP:
                 continue
             global failed_fnp
-            self.failed_fnp += 1
-            self.targets[0] -= 1
-            self.wounds_lost += 1
-            if self.targets[0] <= 0:
-                self.targets.pop(0)
-                self.targets_killed += 1
+            self._try.failed_fnp += 1
+            self._try.targets[0] -= 1
+            self._try.wounds_lost += 1
+            if self._try.targets[0] <= 0:
+                self._try.targets.pop(0)
+                self._try.targets_killed += 1
                 break
-
-
-def def_wound_on(S, T, plus_to_wound=None):
-    if 2 * S <= T:
-        wound_on = 6
-    elif S < T:
-        wound_on = 5
-    elif S == T:
-        wound_on = 4
-    elif S > T:
-        wound_on = 3
-    else:
-        wound_on = 2
-    if plus_to_wound:
-        wound_on -= plus_to_wound
-    return wound_on
-
-
-def is_int(val: Any) -> bool:
-    try:
-        int(val)
-        return True
-    except:
-        return False
 

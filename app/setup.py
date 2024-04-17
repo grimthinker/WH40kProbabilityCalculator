@@ -137,6 +137,13 @@ def setup_app():
     sustained_hits_button = ttk.Checkbutton(text="", variable=sustained_hits_enabled)
     sustained_hits_button.place(**asdict(positions.buttons.sustained_hits_button))
 
+    devastating_wounds_label = ttk.Label(text="DEVASTATING WOUNDS")
+    devastating_wounds_label.place(**asdict(positions.labels.devastating_wounds_label))
+    devastating_wounds_enabled = IntVar()
+    devastating_wounds_button = ttk.Checkbutton(text="", variable=devastating_wounds_enabled)
+    devastating_wounds_button.place(**asdict(positions.buttons.devastating_wounds_button))
+
+
     plus_to_hit_label = ttk.Label(text="Plus to HR")
     plus_to_hit_label.place(**asdict(positions.labels.plus_to_hit_label))
     plus_to_hit_editor = make_int_entry()
@@ -179,6 +186,7 @@ def setup_app():
         sustained_hits_enabled=sustained_hits_enabled,
         sustained_hits_editor=sustained_hits_editor,
         lethal_hits_enabled=lethal_hits_enabled,
+        devastating_wounds_enabled=devastating_wounds_enabled,
         plus_to_hit_editor=plus_to_hit_editor,
         plus_to_wound_editor=plus_to_wound_editor,
         can_reroll_hits_var=can_reroll_hits_var,

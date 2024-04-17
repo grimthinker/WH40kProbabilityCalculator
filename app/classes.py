@@ -36,6 +36,7 @@ class LabelsPositions:
 
     sustained_hits_label: Position
     lethal_hits_label: Position
+    devastating_wounds_label: Position
 
     plus_to_hit_label: Position
     plus_to_wound_label: Position
@@ -89,6 +90,7 @@ class ButtonsPositions:
     will_reroll_wounds: WillRerollRBtnPositions
     sustained_hits_button: Position
     lethal_hits_button: Position
+    devastating_wounds_button: Position
     info: Position
     calculate: Position
 
@@ -134,6 +136,7 @@ class BaseData:
     sustained_hits: bool
     sustained_hits_val: int
     lethal_hits: bool
+    devastating_wounds: bool
     wound_on: int
     CH: int   # critical hit
     CW: int   # critical wound
@@ -192,6 +195,7 @@ class DataAccessor:
     sustained_hits_enabled: IntVar
     sustained_hits_editor: Entry
     lethal_hits_enabled: IntVar
+    devastating_wounds_enabled: IntVar
     plus_to_hit_editor: Entry
     plus_to_wound_editor: Entry
     can_reroll_hits_var: StringVar
@@ -219,6 +223,7 @@ class DataAccessor:
             sustained_hits=self.sustained_hits,
             sustained_hits_val=self.sustained_hits_val,
             lethal_hits=self.sustained_hits,
+            devastating_wounds=self.devastating_wounds,
             wound_on=wound_on,
             CRH=self.can_reroll_hits,
             CRW=self.can_reroll_wounds,
@@ -349,5 +354,7 @@ class DataAccessor:
     def lethal_hits(self) -> bool:
         return bool(self._return_val_int(self.lethal_hits_enabled))
 
-
+    @property
+    def devastating_wounds(self) -> bool:
+        return bool(self._return_val_int(self.devastating_wounds_enabled))
 

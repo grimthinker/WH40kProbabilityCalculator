@@ -34,6 +34,7 @@ positions = Positions(
 
         sustained_hits_label=Position(20, 420),
         lethal_hits_label=Position(20, 450),
+        devastating_wounds_label=Position(20, 480),
 
         plus_to_hit_label=Position(20, 370),
         plus_to_wound_label=Position(170, 370),
@@ -86,8 +87,9 @@ positions = Positions(
         ),
 
         sustained_hits_button=Position(120, 420),
-        lethal_hits_button=Position(120, 450),
-        info=Position(20, 490),
+        lethal_hits_button=Position(100, 450),
+        devastating_wounds_button=Position(160, 480),
+        info=Position(20, 550),
         calculate=Position(800, 70)
     ),
 )
